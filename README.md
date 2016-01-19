@@ -29,15 +29,34 @@ df = df >> filter('origin == JFK', 'dest == SFO') \
 
 ## Examples
 
-To get very simple evaluating:
+To show how `dgrmr` works, the following examples use the `nycflights13` dataset
+that comes built in with `dplyr`. It consists of all 336776 flights that
+departed NYC in 2013. Each example shows how a data manipulation task would
+be accomplished with `pandas`, and then with the equivalent `dgrmr` approach.
+
+### Example 1
+
+Suppose we want to compare average delay times, and average air speeds, between carriers, and specifically
+between JFK and SFO. Using `pandas`, the code is:
 
 ```python
-df = df >> filter('month == 1', 'day == 1', '(dep_delay == 2) | (dep_delay == 3)') \
-        >> rename(month='idiotMonth')\
-        >> mutate(futureYear='year + 1000', doubleFutureYear='futureYear + 1000') \
-        >> preview() \
-        >> select('futureYear', 'doubleFutureYear') \
-        >> mutate(tripleFutureYear='doubleFutureYear + 1000')
+df = df[(df.origin == 'JFK') & (df.dest == 'SFO')]
+df['speed'] = df['distance'] / df['air_time'] * 60
+gf = df.groupby('carrier')
+gf = gf.agg({'arr_delay': {'mean_arr': mean},
+             'speed': {'mean_speed': mean},
+             'dep_delay': mean})
+```
+
+
+Using `dgrmr`:
+```python
+df = df >> filter('origin == JFK', 'dest == SFO') \
+        >> create(speed='distance / air_time * 60') \
+        >> group_by('carrier') \
+        >> summarise(mean_arr_delay = mean(arr_delay),
+                     mean_dep_delay = mean(dep_delay),
+                     mean_speed = mean(speed))
 ```
 
 returns `42`.
