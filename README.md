@@ -9,12 +9,15 @@ is essentially a modified subset of `pandas`.
 
 The core feature is the "pipe" operator, `>>`, which turns `x >> f(y)`
 into `f(x,y)`. It allows for the chaining together of any number
-of data manipulation functions.
+of data manipulation functions. The idea is to pass a dataframe 
+through a clear, concise, ordered set of instructions.
 
+The code below is an example of one such instruction set.
 
 ```python
 df = df >> filter('origin == JFK', 'dest == SFO') \
-        >> mutate(speed='distance / air_time * 60') \
+        >> create(speed='distance / air_time * 60',
+                  log_speed = 'log(speed)') \
         >> group_by('carrier') \
         >> summarise(mean_arr_delay=mean(arr_delay),
                      mean_dep_delay=mean(dep_delay),

@@ -71,7 +71,7 @@ def filter(df, *args):
 
 
 @pipe
-def mutate(df, **kwargs):
+def create(df, **kwargs):
     """
     Take a dataframe, add new columns defined by keyword arguments,
     and output the dataframe.
