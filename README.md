@@ -1,18 +1,27 @@
 # dgrmr (Data Grammar)
 
 
-A small library for data manipulation in Python inspired by Hadley Wickham's
-R package `dplyr`. The goal is to make for more structured, readable, and 
-intuitive data manipulation. The core feature is the `>>` operator, which
-allows for the "piping" of dataframes between `dgrmr` functions. The `>>`
-operator turns `x >> f(y)` into `f(x,y)`.
+A small library for data manipulation in Python inspired by (and 
+a cheap immitation of) Hadley Wickham's R package `dplyr`. The goal is to
+make for more structured, readable, and intuitive data manipulation. It 
+is essentially a modified subset of `pandas`.
 
-For example, given a `pandas` dataframe `df`,
+
+The core feature is the "pipe" operator, `>>`, which turns `x >> f(y)`
+into `f(x,y)`. It allows for the chaining together of any number
+of data manipulation functions.
+
 
 ```python
-df = df >> filter('month == 1', 'day == 1') \
-        >> mutate(year2='year + 1000', year3='year2 + year')
+df = df >> filter('origin == JFK', 'dest == SFO') \
+        >> mutate(speed='distance / air_time * 60') \
+        >> group_by('carrier') \
+        >> summarise(mean_arr_delay=mean(arr_delay),
+                     mean_dep_delay=mean(dep_delay),
+                     mean_speed=mean(speed))
 ```
+
+
 
 
 ## Examples
@@ -65,7 +74,7 @@ gf = df.groupby('carrier')
 gf = gf.agg({'arr_delay': {'mean_arr': mean}, 'speed': {'mean_speed': mean}})
 
 
-df = df >> filter('origin == "JFK"', 'dest == "SFO"') \
+df = df >> filter('origin == JFK', 'dest == SFO') \
         >> mutate(gain='arr_delay - dep_delay',
                   speed='distance / air_time * 60',
                   gain_per_hour='gain / (air_time / 60)') \

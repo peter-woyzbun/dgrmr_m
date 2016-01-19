@@ -5,9 +5,6 @@ import ast
 import operator
 
 
-def mean(instance):
-    return instance.mean()
-
 math_functions = {
     "exp": exp,
     "log": log,

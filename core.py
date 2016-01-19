@@ -7,6 +7,13 @@ from string_evaluation import s
 
 
 def pipe(original):
+    """
+    Wraps a function that takes a dataframe as its first
+    argument, and outputs a dataframe. The '>>' operator
+    passes the output dataframe from the first function
+    to the second function as its first argument.
+
+    """
     class PipeInto(object):
         data = {'function': original}
 
@@ -24,16 +31,37 @@ def pipe(original):
     return PipeInto
 
 
-def conjunction(*conditions):
-    return functools.reduce(np.logical_and, conditions)
+def get_non_numeric_vars(df):
+    df = df.select_dtypes(include=['bool', 'category', 'object'])
+    string_values = []
+    for column in df:
+        string_values += list(df[column].unique())
+    return string_values
 
 
 @pipe
 def filter(df, *args):
+    """
+    Take a dataframe and return only rows who meet the conditions
+    provided in the arguments.
+
+    :param df: dataframe
+    :param args: strings containing dataframe column names, math functions,
+    and logical operators. The strings are evaluated using the 'simpleeval'
+    package.
+    :return: dataframe
+    """
     var_lis = df.columns.values.tolist()
     names_dict = {}
     for var in var_lis:
         names_dict[var] = df[var]
+
+    # Get all distinct, non-numeric dataframe column values
+    # in order to define them for simpleeval.
+    value_vars = get_non_numeric_vars(df)
+    for var in value_vars:
+        names_dict[var] = var
+
     # Define variables for SimpleEval class object.
     s.names = names_dict
     for arg in args:
@@ -44,11 +72,24 @@ def filter(df, *args):
 
 @pipe
 def mutate(df, **kwargs):
+    """
+    Take a dataframe, add new columns defined by keyword arguments,
+    and output the dataframe.
+
+    :param df: dataframe
+    :param kwargs: keyword arguments, whose keys define each new
+    column name, and whose values are strings evaluated by the
+    'simpleeval' package. Strings contain only column names,
+    math functions, integers, and logical operators.
+    :return: dataframe
+    """
+    # Get column names.
     var_lis = df.columns.values.tolist()
     names_dict = {}
     for var in var_lis:
         names_dict[var] = df[var]
-    # Define variables for SimpleEval class object.
+    # Define variables for SimpleEval class object so that they are
+    # recognized during evaluation.
     s.names = names_dict
     key_lis = kwargs.keys()
     num_mutations = len(key_lis)
@@ -57,6 +98,7 @@ def mutate(df, **kwargs):
     # The below loop handles possible argument ordering errors (a "new" column being called before it's defined).
     # Python does not "order" keyword arguments in terms of their input positioning.
     while completed < num_mutations:
+        # Try evaluating a given string.
         try:
             df[key_lis[check]] = s.eval(kwargs[key_lis[check]])
             s.names[key_lis[check]] = df[key_lis[check]]
@@ -64,6 +106,7 @@ def mutate(df, **kwargs):
             check += 1
             if check > num_mutations:
                 check = 0
+        # If there is an error, move on to another string first.
         except:
             if check > num_mutations:
                 check = 0
@@ -100,18 +143,10 @@ def transmute(df, **kwargs):
                 check += 1
     return df[new_vars]
 
-@pipe
-def filter_old(df, *args):
-    for arg in args:
-        c = arg
-        df = df[conjunction(c)]
-    return df
-
 
 @pipe
 def select(df, *args):
-    cols = [x for x in args]
-    df = df[cols]
+    df = df[args]
     return df
 
 
@@ -183,6 +218,9 @@ def summarise(df, **kwargs):
     def agg_type(s):
         return s[:s.find("(")]
 
+    def mean(var):
+        return {'type': 'mean', 'var': var}
+
     aggregations = dict()
 
     target_variables = [target_var(kwargs[key]) for key in kwargs]
@@ -197,11 +235,19 @@ def summarise(df, **kwargs):
 
     df = df.agg(aggregations).reset_index()
 
-    print list(df.columns.get_level_values(1))
-
     df.columns = [''.join(t) for t in df.columns]
 
-    print df
+    return df
 
+
+@pipe
+def wide_to_long(df,**kwargs):
+    df = pd.melt(df, **kwargs)
+    return df
+
+
+@pipe
+def long_to_wide(df,**kwargs):
+    df = pd.melt(df, **kwargs)
     return df
 
