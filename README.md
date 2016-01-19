@@ -1,26 +1,18 @@
 # dgrmr (Data Grammar)
 
 
-A small library for data manipulation in Python inspired by Hadley Wickham's R package `dplyr`.
-Or if you want to allow simple formulae in a web application, but don't want to
-give full `eval()` access, or don't want to run in javascript on the client side.
+A small library for data manipulation in Python inspired by Hadley Wickham's
+R package `dplyr`. The goal is to make for more structured, readable, and 
+intuitive data manipulation. The core feature is the `>>` operator, which
+allows for the "piping" of dataframes between `dgrmr` functions. The `>>`
+operator turns `x >> f(y)` into `f(x,y)`.
 
-It's deliberately very simple, just a single file you can dump into a project, or import
-from pypi (pip or easy_install).
+For example, given a `pandas` dataframe `df`,
 
-Internally, it's using the amazing python `ast` module to parse the expression, which
-allows very fine control of what is and isn't allowed.  It should be completely safe in terms
-of what operations can be performed by the expression.
-
-The only issue I know to be aware of is that you can create an expression which
-takes a long time to evaluate, or which evaluating requires an awful lot of memory,
-which leaves the potential for DOS attacks.  There is basic protection against this,
-and you can lock it down further if you desire. (see the `Operators` section below)
-
-You should be aware of this when deploying in a public setting.
-
-The defaults are pretty locked down and basic, and it's very easy to add whatever
-extra specific functionality you need (your own functions, variable/name lookup, etc).
+```python
+df = df >> filter('month == 1', 'day == 1') \
+        >> mutate(year2='year + 1000', year3='year2 + year')
+```
 
 
 ## Examples
@@ -41,7 +33,19 @@ returns `42`.
 Expressions can be as complex and convoluted as you want:
 
 ```python
-    simple_eval("21 + 19 / 7 + (8 % 3) ** 9")
+     Unnamed: 0  year  month  day  dep_time  dep_delay  arr_time  arr_delay  \
+0           1  2013      1    1       517          2       830         11   
+1           2  2013      1    1       533          4       850         20   
+2           3  2013      1    1       542          2       923         33   
+3           4  2013      1    1       544         -1      1004        -18   
+4           5  2013      1    1       554         -6       812        -25   
+
+  carrier tailnum  flight origin dest  air_time  distance  hour  minute  
+0      UA  N14228    1545    EWR  IAH       227      1400     5      17  
+1      UA  N24211    1714    LGA  IAH       227      1416     5      33  
+2      AA  N619AA    1141    JFK  MIA       160      1089     5      42  
+3      B6  N804JB     725    JFK  BQN       183      1576     5      44  
+4      DL  N668DN     461    LGA  ATL       116       762     5      54  
 ```
 
 returns `535.714285714`.
@@ -49,7 +53,24 @@ returns `535.714285714`.
 You can add your own functions in as well.
 
 ```python
-    simple_eval("square(11)", functions={"square": lambda x: x*x})
+# Filter dataframe for origin and destination.
+df = df[(df.origin == 'JFK') & (df.dest == 'SFO')]
+# Define the 'gain', 'speed', and 'gain_per_hour' columns.
+df['gain'] = df['arr_delay'] - df['dep_delay']
+df['speed'] = df['distance'] / df['air_time'] * 60
+df['gain_per_hour'] = df['gain'] / (df['air_time'] * 60)
+# Group by carrier.
+gf = df.groupby('carrier')
+# Get aggregate statistics.
+gf = gf.agg({'arr_delay': {'mean_arr': mean}, 'speed': {'mean_speed': mean}})
+
+
+df = df >> filter('origin == "JFK"', 'dest == "SFO"') \
+        >> mutate(gain='arr_delay - dep_delay',
+                  speed='distance / air_time * 60',
+                  gain_per_hour='gain / (air_time / 60)') \
+        >> group_by('carrier') \
+        >> summarise(mean_arr='mean(arr_delay)', mean_speed='mean(speed)')
 ```
 
 returns `121`.
