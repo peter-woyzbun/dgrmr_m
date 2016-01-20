@@ -5,9 +5,10 @@
  essentially a collection of functions layered over `pandas` functions, and a new "pipe" operator.
 
 The "pipe" operator, `>>`, turns `x >> f(y)`into `f(x,y)`. It allows for the chaining together of any number of `dgrmr` 
-functions. That is, to pass the output dataframe from one function to the next. The idea is to manipulate a dataframe 
+functions. That is, it passes the dataframe output from one function to the next. The idea is to manipulate a dataframe 
 with a clear, concise, ordered set of instructions. The code below is an example of one such instruction set.
 
+### Example Code
 ```python
 df = df >> keep('origin == JFK', 'dest == SFO') \
         >> create(speed='distance / air_time * 60',
