@@ -98,7 +98,7 @@ def create(df, **kwargs):
     completed = 0
     check = 0
     # The below loop handles possible argument ordering errors (a "new" column being called before it's defined).
-    # Python does not "order" keyword arguments in terms of their input positioning.
+    # This is required because Python does not "order" keyword arguments in terms of their input positioning.
     while completed < num_mutations:
         # Try evaluating a given string.
         try:
@@ -212,35 +212,6 @@ def group_by(df, *args):
     return df
 
 
-def s_mean(col):
-    return {'type': 'mean', 'var': col}
-
-
-def s_sum(col):
-    return {'type': 'sum', 'var': col}
-
-
-def s_count(col):
-    return {'type': 'count', 'var': col}
-
-
-def s_min(col):
-    return {'type': 'min', 'var': col}
-
-
-def s_max(col):
-    return {'type': 'max', 'var': col}
-
-
-def s_std(col):
-    return {'type': 'std', 'var': col}
-
-
-def s_var(col):
-    return {'type': 'std', 'var': col}
-
-
-
 @pipe
 def summarise(df, **kwargs):
 
@@ -276,4 +247,14 @@ def wide_to_long(df, **kwargs):
 def long_to_wide(df,**kwargs):
     df = pd.melt(df, **kwargs)
     return df
+
+
+@pipe
+def merge_with(df, *args, **kwargs):
+    join_type = kwargs['using']
+    source_df = args[0]
+    on = kwargs['on']
+    return pd.merge(df, source_df, on=on, how=join_type)
+
+
 

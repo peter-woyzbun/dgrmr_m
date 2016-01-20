@@ -1,29 +1,23 @@
 # dgrmr (Data Grammar)
 
+`dgrmr` is a small package for data manipulation in Python inspired by (an imitation of) Hadley Wickham's R package
+`dplyr`. The goal is to make for more structured, readable, and intuitive data manipulation code. Internally, it is 
+ essentially a collection of functions layered over `pandas` functions, and a new "pipe" operator.
 
-`dgrmr` is a small library for data manipulation in Python inspired by (and 
-a cheap immitation of) Hadley Wickham's R package `dplyr`. The goal is to
-make for more structured, readable, and intuitive data manipulation code. It 
-is essentially some new/renamed `pandas` functions.
-
-
-The core feature is the "pipe" operator, `>>`, which turns `x >> f(y)`
-into `f(x,y)`. It allows for the chaining together of any number
-of data manipulation functions. The idea is to pass manipulate a
-dataframe with a clear, concise, ordered set of instructions.
-
-The code below is an example of one such instruction set.
+The "pipe" operator, `>>`, turns `x >> f(y)`into `f(x,y)`. It allows for the chaining together of any number of `dgrmr` 
+functions. That is, to pass the output dataframe from one function to the next. The idea is to manipulate a dataframe 
+with a clear, concise, ordered set of instructions. The code below is an example of one such instruction set.
 
 ```python
-df = df >> filter('origin == JFK', 'dest == SFO') \
+df = df >> keep('origin == JFK', 'dest == SFO') \
         >> create(speed='distance / air_time * 60',
                   log_speed = 'log(speed)') \
         >> group_by('carrier') \
-        >> summarise(mean_arr_delay=mean(arr_delay),
-                     mean_dep_delay=mean(dep_delay),
-                     mean_speed=mean(speed))
+        >> summarise(mean_t_delay=('mean', 't_delay'),
+                     max_t_delay_hrs=('max', 't_delay_hrs'))
 ```
 
+As with `dplyr`, each core function corresponds to one of the "verbs" of common data manipulation tasks.
 
 
 
@@ -76,7 +70,7 @@ df = df >> keep('origin == JFK', 'dest == SFO') \
                   t_delay_hrs='t_delay / 60')\
         >> group_by('carrier') \
         >> summarise(mean_t_delay=('mean', 't_delay'),
-                     max_t_delay_hrs=('max', 't_delay')) \
+                     max_t_delay_hrs=('max', 't_delay_hrs')) \
         >> order_by('mean_t_delay', ascending=False)
 ```
 
@@ -151,6 +145,10 @@ math functions, and any column defined in the arguments given.
 ```python
 df = df >> select('origin', 'dest', 'arr_delay')
 ```
+
+
+## How it Works
+
 
 
 ## Limited Power
