@@ -10,7 +10,7 @@ def pipe(original):
     """
     Wraps a function that takes a dataframe as its first
     argument, and outputs a dataframe. The '>>' operator
-    passes the output dataframe from the first function
+    passes the returned dataframe from the first function
     to the second function as its first argument.
 
     """
@@ -86,6 +86,8 @@ def create(df, **kwargs):
     # Get column names.
     var_lis = df.columns.values.tolist()
     names_dict = {}
+    # Create a dictionary mapping each variable to its matching
+    # dataframe column.
     for var in var_lis:
         names_dict[var] = df[var]
     # Define variables for SimpleEval class object so that they are
@@ -106,7 +108,7 @@ def create(df, **kwargs):
             check += 1
             if check > num_mutations:
                 check = 0
-        # If there is an error, move on to another string first.
+        # If there is an error, move on to another string.
         except:
             if check > num_mutations:
                 check = 0
@@ -116,8 +118,11 @@ def create(df, **kwargs):
 
 @pipe
 def transmute(df, **kwargs):
+    # Get column names.
     var_lis = df.columns.values.tolist()
     names_dict = {}
+    # Create a dictionary mapping each variable to its matching
+    # dataframe column.
     for var in var_lis:
         names_dict[var] = df[var]
     # Define variables for SimpleEval class object.
@@ -146,13 +151,30 @@ def transmute(df, **kwargs):
 
 @pipe
 def select(df, *args):
+    """
+    Take a dataframe and return a subset dataframe with only the columns
+    specified by the arguments.
+
+    :param df: dataframe
+    :param args: each argument is a string containing a single column name.
+    :return: dataframe.
+    """
     df = df[args]
     return df
 
 
 @pipe
 def rename(df, **kwargs):
-    """ SOME COMMENT LOL"""
+    """
+    Take a dataframe and change column names as instructed in the
+    given keyword arguments.
+
+    :param df: dataframe
+    :param kwargs: keyword arguments, each key representing an
+    "old" dataframe column, and each key value a string containing
+    the "new" column name.
+    :return: dataframe
+    """
     for name, value in kwargs.items():
         df = df.rename(columns={'%s' % name: '%s' % value})
     return df
@@ -160,6 +182,14 @@ def rename(df, **kwargs):
 
 @pipe
 def distinct(df, *args):
+    """
+    Take a dataframe and return only distinct values for each
+    given column.
+
+    :param df: dataframe
+    :param args: each argument is a string containing a single column name.
+    :return: dataframe
+    """
     for arg in args:
         df = df.drop_duplicates(arg)
     return df
@@ -167,6 +197,14 @@ def distinct(df, *args):
 
 @pipe
 def sample_n(df, sample_size):
+    """
+    Take a dataframe return a subset of random rows as given
+    by the "sample_size" argument.
+
+    :param df: dataframe
+    :param sample_size: integer: the number of random rows to return.
+    :return: dataframe
+    """
     return df.sample(n=sample_size)
 
 
@@ -188,28 +226,6 @@ def group_by(df, *args):
 
 
 @pipe
-def summarise_temp(df, **kwargs):
-    var_lis = df.columns.values.tolist()
-    names_dict = {}
-    for var in var_lis:
-        names_dict[var] = df[var]
-    # Define variables for SimpleEval class object.
-    s.names = names_dict
-    summary_df = pd.DataFrame(index=df.index)
-    for key in kwargs:
-        summary_df[key] = s.eval(kwargs[key])
-
-
-@pipe
-def summarise_temp1(df, **kwargs):
-    mapping_dict = {'mean': np.mean, 'sum': np.sum}
-    for key in kwargs:
-        func = mapping_dict[kwargs[key]]
-        kwargs[key] = func
-    return df.agg(kwargs)
-
-
-@pipe
 def summarise(df, **kwargs):
 
     def target_var(s):
@@ -222,21 +238,14 @@ def summarise(df, **kwargs):
         return {'type': 'mean', 'var': var}
 
     aggregations = dict()
-
     target_variables = [target_var(kwargs[key]) for key in kwargs]
-
     print target_variables
-
     for var in target_variables:
         aggregations[var] = dict()
-
     for key in kwargs:
         aggregations[target_var(kwargs[key])][key] = agg_type(kwargs[key])
-
     df = df.agg(aggregations).reset_index()
-
     df.columns = [''.join(t) for t in df.columns]
-
     return df
 
 

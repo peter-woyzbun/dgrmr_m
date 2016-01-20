@@ -1,7 +1,7 @@
 # dgrmr (Data Grammar)
 
 
-A small library for data manipulation in Python inspired by (and 
+`dgrmr` is a small library for data manipulation in Python inspired by (and 
 a cheap immitation of) Hadley Wickham's R package `dplyr`. The goal is to
 make for more structured, readable, and intuitive data manipulation. It 
 is essentially a modified subset of `pandas`.
@@ -34,6 +34,24 @@ that comes built in with `dplyr`. It consists of all 336776 flights that
 departed NYC in 2013. Each example shows how a data manipulation task would
 be accomplished with `pandas`, and then with the equivalent `dgrmr` approach.
 
+#### `nycflights13`
+
+```python
+     Unnamed: 0  year  month  day  dep_time  dep_delay  arr_time  arr_delay  \
+0           1  2013      1    1       517          2       830         11   
+1           2  2013      1    1       533          4       850         20   
+2           3  2013      1    1       542          2       923         33   
+3           4  2013      1    1       544         -1      1004        -18   
+4           5  2013      1    1       554         -6       812        -25   
+
+  carrier tailnum  flight origin dest  air_time  distance  hour  minute  
+0      UA  N14228    1545    EWR  IAH       227      1400     5      17  
+1      UA  N24211    1714    LGA  IAH       227      1416     5      33  
+2      AA  N619AA    1141    JFK  MIA       160      1089     5      42  
+3      B6  N804JB     725    JFK  BQN       183      1576     5      44  
+4      DL  N668DN     461    LGA  ATL       116       762     5      54  
+```
+
 ### Example 1
 
 Suppose we want to compare average delay times, and average air speeds, between carriers, and specifically
@@ -63,21 +81,7 @@ returns `42`.
 
 Expressions can be as complex and convoluted as you want:
 
-```python
-     Unnamed: 0  year  month  day  dep_time  dep_delay  arr_time  arr_delay  \
-0           1  2013      1    1       517          2       830         11   
-1           2  2013      1    1       533          4       850         20   
-2           3  2013      1    1       542          2       923         33   
-3           4  2013      1    1       544         -1      1004        -18   
-4           5  2013      1    1       554         -6       812        -25   
 
-  carrier tailnum  flight origin dest  air_time  distance  hour  minute  
-0      UA  N14228    1545    EWR  IAH       227      1400     5      17  
-1      UA  N24211    1714    LGA  IAH       227      1416     5      33  
-2      AA  N619AA    1141    JFK  MIA       160      1089     5      42  
-3      B6  N804JB     725    JFK  BQN       183      1576     5      44  
-4      DL  N668DN     461    LGA  ATL       116       762     5      54  
-```
 
 returns `535.714285714`.
 

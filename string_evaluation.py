@@ -19,9 +19,6 @@ math_functions = {
     "sum": sum,
 }
 
-# url = 'http://127.0.0.1:8000/media/data/admin/LifeCycleSavings1.csv'
-
-# df = pd.read_csv(url)
 
 s = SimpleEval(functions=math_functions)
 
