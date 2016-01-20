@@ -75,9 +75,9 @@ df = df >> keep('origin == JFK', 'dest == SFO') \
         >> create(t_delay='arr_delay + dep_delay',
                   t_delay_hrs='t_delay / 60')\
         >> group_by('carrier') \
-        >> summarise(mean_t_delay=s_mean('t_delay'),
-                     max_t_delay_hrs=s_max('t_delay_hrs')) \
-        >> arrange('mean_t_delay', ascending=False)
+        >> summarise(mean_t_delay=('mean', 't_delay'),
+                     max_t_delay_hrs=('max', 't_delay')) \
+        >> order_by('mean_t_delay', ascending=False)
 ```
 
 ## Basic Functions
@@ -106,9 +106,53 @@ df = df >> create(t_delay='arr_delay + dep_delay',
                   t_delay_hrs='t_delay / 60')
 ```
 
+### `select()`
+
+The `select()` function is used for creating new dataframe columns. The
+name of the column is defined by the keyword argument. Each new column is
+defined in a string and may use dataframe column names, logical operators,
+math functions, and any column defined in the arguments given.
+
 ```python
-df = df >> keep('origin == JFK', 'dest == SFO')
+df = df >> select('origin', 'dest', 'arr_delay')
 ```
+
+### `group_by()`
+
+The `group_by()` function is used for creating new dataframe columns. The
+name of the column is defined by the keyword argument. Each new column is
+defined in a string and may use dataframe column names, logical operators,
+math functions, and any column defined in the arguments given.
+
+```python
+df = df >> select('origin', 'dest', 'arr_delay')
+```
+
+
+### `summarise()`
+
+The `select()` function is used for creating new dataframe columns. The
+name of the column is defined by the keyword argument. Each new column is
+defined in a string and may use dataframe column names, logical operators,
+math functions, and any column defined in the arguments given.
+
+```python
+df = df >> select('origin', 'dest', 'arr_delay')
+```
+
+
+### `order_by()`
+
+The `select()` function is used for creating new dataframe columns. The
+name of the column is defined by the keyword argument. Each new column is
+defined in a string and may use dataframe column names, logical operators,
+math functions, and any column defined in the arguments given.
+
+```python
+df = df >> select('origin', 'dest', 'arr_delay')
+```
+
+
 ## Limited Power
 
 Also note, the `**` operator has been locked down by default to have a maximum input value
