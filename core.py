@@ -40,7 +40,7 @@ def get_non_numeric_vars(df):
 
 
 @pipe
-def filter(df, *args):
+def keep(df, *args):
     """
     Take a dataframe and return only rows who meet the conditions
     provided in the arguments.
@@ -116,50 +116,38 @@ def create(df, **kwargs):
                 check += 1
     return df
 
-@pipe
-def transmute(df, **kwargs):
-    # Get column names.
-    var_lis = df.columns.values.tolist()
-    names_dict = {}
-    # Create a dictionary mapping each variable to its matching
-    # dataframe column.
-    for var in var_lis:
-        names_dict[var] = df[var]
-    # Define variables for SimpleEval class object.
-    s.names = names_dict
-    key_lis = kwargs.keys()
-    num_mutations = len(key_lis)
-    completed = 0
-    check = 0
-    new_vars = []
-    while completed < num_mutations:
-        try:
-            df[key_lis[check]] = s.eval(kwargs[key_lis[check]])
-            s.names[key_lis[check]] = df[key_lis[check]]
-            new_vars.append(key_lis[check])
-            completed += 1
-            check += 1
-            if check > num_mutations:
-                check = 0
-        except:
-            if check > num_mutations:
-                check = 0
-            else:
-                check += 1
-    return df[new_vars]
-
 
 @pipe
 def select(df, *args):
     """
     Take a dataframe and return a subset dataframe with only the columns
-    specified by the arguments.
+    specified by the givearguments.
 
     :param df: dataframe
     :param args: each argument is a string containing a single column name.
     :return: dataframe.
     """
     df = df[args]
+    return df
+
+
+@pipe
+def slice_rows(df, n, m):
+    return df[n:m]
+
+
+@pipe
+def arrange(df, *args, **kwargs):
+    if kwargs:
+        for key in kwargs:
+            asc_lis = kwargs[key]
+        if len(args) == 1:
+            return df.sort(args[0], ascending=asc_lis)
+        else:
+            return df.sort(args, ascending=asc_lis)
+    if len(args) == 1:
+        df.sort()
+    df.sort(args)
     return df
 
 
@@ -209,7 +197,7 @@ def sample_n(df, sample_size):
 
 
 @pipe
-def preview(df):
+def check(df):
     print df.head()
     continue_process = raw_input("Continue? [y/n]")
     if continue_process == 'y':
@@ -221,36 +209,65 @@ def preview(df):
 @pipe
 def group_by(df, *args):
     df = df.groupby(args, as_index=False)
-    print df
     return df
+
+
+def s_mean(col):
+    return {'type': 'mean', 'var': col}
+
+
+def s_sum(col):
+    return {'type': 'sum', 'var': col}
+
+
+def s_count(col):
+    return {'type': 'count', 'var': col}
+
+
+def s_min(col):
+    return {'type': 'min', 'var': col}
+
+
+def s_max(col):
+    return {'type': 'max', 'var': col}
+
+
+def s_std(col):
+    return {'type': 'std', 'var': col}
+
+
+def s_var(col):
+    return {'type': 'std', 'var': col}
+
 
 
 @pipe
 def summarise(df, **kwargs):
 
-    def target_var(s):
-        return s[s.find("(")+1:s.find(")")]
-
-    def agg_type(s):
-        return s[:s.find("(")]
-
-    def mean(var):
-        return {'type': 'mean', 'var': var}
-
     aggregations = dict()
-    target_variables = [target_var(kwargs[key]) for key in kwargs]
-    print target_variables
+    target_variables = [kwargs[key]['var'] for key in kwargs]
+
     for var in target_variables:
         aggregations[var] = dict()
     for key in kwargs:
-        aggregations[target_var(kwargs[key])][key] = agg_type(kwargs[key])
-    df = df.agg(aggregations).reset_index()
-    df.columns = [''.join(t) for t in df.columns]
+        aggregations[kwargs[key]['var']][key] = kwargs[key]['type']
+    df = df.agg(aggregations)
+
+    mi = df.columns
+    new_index_lis = []
+    for e in mi.tolist():
+        if e[1] == '':
+            new_index_lis.append(e[0])
+        else:
+            new_index_lis.append(e[1])
+
+    ind = pd.Index(new_index_lis)
+    df.columns = ind
     return df
 
 
 @pipe
-def wide_to_long(df,**kwargs):
+def wide_to_long(df, **kwargs):
     df = pd.melt(df, **kwargs)
     return df
 

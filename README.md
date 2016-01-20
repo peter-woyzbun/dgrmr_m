@@ -3,14 +3,14 @@
 
 `dgrmr` is a small library for data manipulation in Python inspired by (and 
 a cheap immitation of) Hadley Wickham's R package `dplyr`. The goal is to
-make for more structured, readable, and intuitive data manipulation. It 
-is essentially a modified subset of `pandas`.
+make for more structured, readable, and intuitive data manipulation code. It 
+is essentially some new/renamed `pandas` functions.
 
 
 The core feature is the "pipe" operator, `>>`, which turns `x >> f(y)`
 into `f(x,y)`. It allows for the chaining together of any number
-of data manipulation functions. The idea is to pass a dataframe 
-through a clear, concise, ordered set of instructions.
+of data manipulation functions. The idea is to pass manipulate a
+dataframe with a clear, concise, ordered set of instructions.
 
 The code below is an example of one such instruction set.
 
@@ -27,12 +27,13 @@ df = df >> filter('origin == JFK', 'dest == SFO') \
 
 
 
-## Examples
+## Example
 
 To show how `dgrmr` works, the following examples use the `nycflights13` dataset
 that comes built in with `dplyr`. It consists of all 336776 flights that
-departed NYC in 2013. Each example shows how a data manipulation task would
-be accomplished with `pandas`, and then with the equivalent `dgrmr` approach.
+departed NYC in 2013 - the first five rows are shown below. Each example 
+shows how a data manipulation task would be accomplished with `pandas`, 
+and then with the equivalent `dgrmr` approach.
 
 #### `nycflights13`
 
@@ -54,68 +55,60 @@ be accomplished with `pandas`, and then with the equivalent `dgrmr` approach.
 
 ### Example 1
 
-Suppose we want to compare average delay times, and average air speeds, between carriers, and specifically
-between JFK and SFO. Using `pandas`, the code is:
+Suppose we want to compare delay times between carriers, and specifically
+flights between JFK and SFO. Using `pandas`, the code is:
 
 ```python
 df = df[(df.origin == 'JFK') & (df.dest == 'SFO')]
-df['speed'] = df['distance'] / df['air_time'] * 60
+df['t_delay'] = df['arr_delay'] / df['dep_delay']
+df['t_delay_hrs'] = df['t_delay'] / 60
 gf = df.groupby('carrier')
-gf = gf.agg({'arr_delay': {'mean_arr': mean},
-             'speed': {'mean_speed': mean},
-             'dep_delay': mean})
+gf = gf.agg({'t_delay': {'mean_t_delay': mean,
+                         'max_t_delay_hrs': max}})
+gf.sort('mean_t_delay', ascending=False)                         
 ```
 
 
 Using `dgrmr`:
 ```python
-df = df >> filter('origin == JFK', 'dest == SFO') \
-        >> create(speed='distance / air_time * 60') \
+df = df >> keep('origin == JFK', 'dest == SFO') \
+        >> create(t_delay='arr_delay + dep_delay',
+                  t_delay_hrs='t_delay / 60')\
         >> group_by('carrier') \
-        >> summarise(mean_arr_delay = mean(arr_delay),
-                     mean_dep_delay = mean(dep_delay),
-                     mean_speed = mean(speed))
+        >> summarise(mean_t_delay=s_mean('t_delay'),
+                     max_t_delay_hrs=s_max('t_delay_hrs')) \
+        >> arrange('mean_t_delay', ascending=False)
 ```
 
-returns `42`.
+## Basic Functions
 
-Expressions can be as complex and convoluted as you want:
+Each of the basic `dgrmr` functions performs a fundamental data manipulation task.
 
+### `keep()`
 
-
-returns `535.714285714`.
-
-You can add your own functions in as well.
+The `keep()` function subsets a given dataframe, keeping only those rows that meet
+the conditions provided. Each condition is contained in a string and may use
+column names, logical operators, and math functions.
 
 ```python
-# Filter dataframe for origin and destination.
-df = df[(df.origin == 'JFK') & (df.dest == 'SFO')]
-# Define the 'gain', 'speed', and 'gain_per_hour' columns.
-df['gain'] = df['arr_delay'] - df['dep_delay']
-df['speed'] = df['distance'] / df['air_time'] * 60
-df['gain_per_hour'] = df['gain'] / (df['air_time'] * 60)
-# Group by carrier.
-gf = df.groupby('carrier')
-# Get aggregate statistics.
-gf = gf.agg({'arr_delay': {'mean_arr': mean}, 'speed': {'mean_speed': mean}})
-
-
-df = df >> filter('origin == JFK', 'dest == SFO') \
-        >> mutate(gain='arr_delay - dep_delay',
-                  speed='distance / air_time * 60',
-                  gain_per_hour='gain / (air_time / 60)') \
-        >> group_by('carrier') \
-        >> summarise(mean_arr='mean(arr_delay)', mean_speed='mean(speed)')
+df = df >> keep('origin == JFK', 'dest == SFO')
 ```
 
-returns `121`.
+### `create()`
 
-For more details of working with functions, read [The docs on pypi](https://pypi.python.org/pypi/simpleeval)
+The `create()` function is used for creating new dataframe columns. The
+name of the column is defined by the keyword argument. Each new column is
+defined in a string and may use dataframe column names, logical operators,
+math functions, and any column defined in the arguments given.
 
-### Note:
-all further examples use `>>>` to designate python code, as if you are using the python interactive
-prompt.
+```python
+df = df >> create(t_delay='arr_delay + dep_delay',
+                  t_delay_hrs='t_delay / 60')
+```
 
+```python
+df = df >> keep('origin == JFK', 'dest == SFO')
+```
 ## Limited Power
 
 Also note, the `**` operator has been locked down by default to have a maximum input value
