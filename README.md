@@ -16,7 +16,8 @@ df = df >> keep('origin == JFK', 'dest == SFO') \
         >> merge_with(df_n, on='carrier', using='outer_join') \
         >> group_by('carrier') \
         >> summarise(mean_t_delay=('mean', 't_delay'),
-                     max_t_delay_hrs=('max', 't_delay_hrs'))
+                     max_t_delay_hrs=('max', 't_delay_hrs')) \
+        >> order_by('mean_t_delay')
 ```
 
 As with `dplyr`, each core function corresponds to one of the "verbs" of common data manipulation tasks. To illustrate,
