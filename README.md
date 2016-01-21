@@ -13,6 +13,7 @@ with a clear, concise, ordered set of instructions.
 df = df >> keep('origin == JFK', 'dest == SFO') \
         >> create(speed='distance / air_time * 60',
                   log_speed = 'log(speed)') \
+        >> merge_with(df_n, on='carrier', using='outer_join') \
         >> group_by('carrier') \
         >> summarise(mean_t_delay=('mean', 't_delay'),
                      max_t_delay_hrs=('max', 't_delay_hrs'))
