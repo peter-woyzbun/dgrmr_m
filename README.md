@@ -169,8 +169,19 @@ df = df >> select('origin', 'dest', 'arr_delay')
 
 ## How it Works
 
-The pipe operator is simply a decorator that chains to functions. String arguments
-that require parsing - those used in the `keep()` function, for example - are handled by the `simpleeval` package.
+String arguments that require parsing - those used in the `keep()` function, for example - are handled by the 
+`simpleeval` package. The `simpleeval` package allows for the evaluation of expressions, contained in strings,
+using defined functions and variables ("names). For example, 
+
+```python
+simple_eval('one = 1', names={'one': df['one'})
+```
+
+has the same effect as
+
+```python
+df['one'] = 1
+```
 
 
 
