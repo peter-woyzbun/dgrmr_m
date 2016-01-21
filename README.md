@@ -1,8 +1,8 @@
 # dgrmr (Data Grammar)
 
-`dgrmr` is a small package for data manipulation in Python inspired by (an imitation of) Hadley Wickham's R package
-`dplyr`. The goal is to make for more structured, readable, and intuitive data manipulation code. Internally, it is 
- essentially a collection of functions layered over `pandas` functions, and a new "pipe" operator.
+`dgrmr` is a small package for data manipulation in Python, using `pandas`, inspired by (an imitation of) Hadley Wickham's 
+R package `dplyr`. The goal is to make for more structured, readable, and intuitive data manipulation code. Internally, it is 
+ essentially a collection of functions layered over `pandas`, and a new "pipe" operator.
 
 The "pipe" operator, `>>`, turns `x >> f(y)`into `f(x,y)`. It allows for the chaining together of any number of `dgrmr` 
 functions. That is, it passes the dataframe output from one function to the next. The idea is to manipulate a dataframe 
@@ -19,7 +19,7 @@ df = df >> keep('origin == JFK', 'dest == SFO') \
 ```
 
 As with `dplyr`, each core function corresponds to one of the "verbs" of common data manipulation tasks. To illustrate,
-the next section compares a simple manipulation using both `dgrmr` and `pandas`.
+the next section compares a simple manipulation using `pandas` and then `dgrmr`.
 
 ## `dplyr` vs. `pandas`
 
@@ -47,8 +47,6 @@ and then with the equivalent `dgrmr` approach.
 4      DL  N668DN     461    LGA  ATL       116       762     5      54  
 ```
 
-### Example 1
-
 Suppose we want to compare delay times between carriers, and specifically
 flights between JFK and SFO. Using `pandas`, the code is:
 
@@ -61,7 +59,6 @@ gf = gf.agg({'t_delay': {'mean_t_delay': mean,
                          'max_t_delay_hrs': max}})
 gf.sort('mean_t_delay', ascending=False)                         
 ```
-
 
 Using `dgrmr`:
 ```python
@@ -149,8 +146,8 @@ df = df >> select('origin', 'dest', 'arr_delay')
 
 ## How it Works
 
-The pipe operator...
+The pipe operator is simply a decorator that chains to functions. String arguments
+that require parsing - those used in the `keep()` function, for example - are handled by the `simpleeval` package.
 
-Outside of dressing up some `pandas` functionality, `dgrmr` 
 
 
