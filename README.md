@@ -144,6 +144,27 @@ math functions, and any column defined in the arguments given.
 df = df >> select('origin', 'dest', 'arr_delay')
 ```
 
+### `merge_with()`
+
+The `merge_with()` function is used for creating new dataframe columns. The
+name of the column is defined by the keyword argument. Each new column is
+defined in a string and may use dataframe column names, logical operators,
+math functions, and any column defined in the arguments given.
+
+```python
+df = df >> select('origin', 'dest', 'arr_delay')
+```
+
+### `apply_function()`
+
+`apply_function()` function is used for creating new dataframe columns. The
+name of the column is defined by the keyword argument. Each new column is
+defined in a string and may use dataframe column names, logical operators,
+math functions, and any column defined in the arguments given.
+
+```python
+df = df >> select('origin', 'dest', 'arr_delay')
+```
 
 ## How it Works
 
