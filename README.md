@@ -20,8 +20,14 @@ df = df >> keep('origin == JFK', 'dest == SFO') \
         >> order_by('mean_t_delay')
 ```
 
-As with `dplyr`, each core function corresponds to one of the "verbs" of common data manipulation tasks. To illustrate,
-the next section compares a simple manipulation using `pandas` and then `dgrmr`.
+## Installation
+
+You can either copy `dgrmr.py` into your project folder, or use pip:
+
+```
+pip install dgrmr
+```
+
 
 ## `dgrmr` vs. `pandas`
 
