@@ -13,6 +13,10 @@ def pipe(original):
     passes the returned dataframe from the first function
     to the second function as its first argument.
 
+    :param original: the function on the left-hand side of the '>>' operator.
+    The function must output a dataframe so that it can be passed to the
+    "next" function.
+
     """
     class PipeInto(object):
         data = {'function': original}
@@ -96,24 +100,24 @@ def create(df, **kwargs):
     key_lis = kwargs.keys()
     num_mutations = len(key_lis)
     completed = 0
-    check = 0
+    check_next = 0
     # The below loop handles possible argument ordering errors (a "new" column being called before it's defined).
-    # This is required because Python does not "order" keyword arguments in terms of their input positioning.
+    # This is required because Python does not "order" keyword arguments in terms of their given input ordering.
     while completed < num_mutations:
         # Try evaluating a given string.
         try:
-            df[key_lis[check]] = s.eval(kwargs[key_lis[check]])
-            s.names[key_lis[check]] = df[key_lis[check]]
+            df[key_lis[check_next]] = s.eval(kwargs[key_lis[check_next]])
+            s.names[key_lis[check_next]] = df[key_lis[check_next]]
             completed += 1
-            check += 1
-            if check > num_mutations:
-                check = 0
+            check_next += 1
+            if check_next > num_mutations:
+                check_next = 0
         # If there is an error, move on to another string.
         except:
-            if check > num_mutations:
-                check = 0
+            if check_next > num_mutations:
+                check_next = 0
             else:
-                check += 1
+                check_next += 1
     return df
 
 
@@ -251,7 +255,12 @@ def long_to_wide(df,**kwargs):
 
 @pipe
 def merge_with(df, *args, **kwargs):
-    join_type = kwargs['using']
+    # Map the "expressive" join type labels to their corresponding pandas join type.
+    join_types_dict = {'outer_join': 'outer',
+                       'inner_join': 'inner',
+                       'right_join': 'right',
+                       'left_join': 'left'}
+    join_type = join_types_dict[kwargs['using']]
     source_df = args[0]
     on = kwargs['on']
     return pd.merge(df, source_df, on=on, how=join_type)

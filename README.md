@@ -23,7 +23,7 @@ df = df >> keep('origin == JFK', 'dest == SFO') \
 As with `dplyr`, each core function corresponds to one of the "verbs" of common data manipulation tasks. To illustrate,
 the next section compares a simple manipulation using `pandas` and then `dgrmr`.
 
-## `dplyr` vs. `pandas`
+## `dgrmr` vs. `pandas`
 
 To show how `dgrmr` works, the following examples use the `nycflights13` dataset
 that comes built in with `dplyr`. It consists of all 336776 flights that
@@ -101,13 +101,19 @@ df = df >> create(t_delay='arr_delay + dep_delay',
 
 ### `select()`
 
-The `select()` function is used for creating new dataframe columns. The
-name of the column is defined by the keyword argument. Each new column is
-defined in a string and may use dataframe column names, logical operators,
-math functions, and any column defined in the arguments given.
+The `select()` function is used to subset a given dataframe, returning the dataframe with only those columns included
+in the arguments.
 
 ```python
 df = df >> select('origin', 'dest', 'arr_delay')
+```
+
+### `rename()`
+
+The `rename()` function is used to rename dataframe columns.
+
+```python
+df = df >> rename(origin='origin_new')
 ```
 
 ### `group_by()`
