@@ -8,7 +8,7 @@ The "pipe" operator, `>>`, turns `x >> f(y)`into `f(x,y)`. It allows for the cha
 functions. That is, it passes the dataframe output from one function to the next. The idea is to manipulate a dataframe 
 with a clear, concise, ordered set of instructions.
 
-### Code Example
+### Example
 ```python
 df = df >> keep('origin == JFK', 'dest == SFO') \
         >> create(speed='distance / air_time * 60',
@@ -29,7 +29,7 @@ pip install dgrmr
 ```
 
 
-## `dgrmr` vs. `pandas`
+## Comparison: `dgrmr` vs. `pandas`
 
 To show how `dgrmr` works, the following examples use the `nycflights13` dataset
 that comes built in with `dplyr`. It consists of all 336776 flights that
