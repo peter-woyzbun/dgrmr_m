@@ -27,7 +27,9 @@ class ColumnDoesNotExist(InvalidExpression):
 
 
 # Default math functions that may be called in strings evaluated
-# by the simpleeval evaluator.
+# by the simpleeval evaluator. These functions are callable when
+# defining new columns  - the "create()" function - and filtering
+# - the "keep()" function.
 
 MATH_FUNCTIONS = {
     # Numpy functions.
@@ -50,27 +52,29 @@ MATH_FUNCTIONS = {
 # Create the actual evaluator:
 
 
-# Create the evaluator and include the math functions defined in MATH_FUNCTIONS.
+# Create the simpleeval evaluator and include the functions defined in MATH_FUNCTIONS.
+# A string "x" is evaluated by the expression "s.eval(x)".
 s = SimpleEval(functions=MATH_FUNCTIONS)
 
-# Add the "BitOr" operator to simpleeval default operators.
+# Add the "BitOr" operator to the simpleeval default operators.
 s.operators[ast.BitOr] = operator.or_
 
 
 # ======================================
-# Pipe wrapper for chaining functions:
+# Pipe wrapper for chainable functions:
 
 
 def pipe(original):
     """
     Wraps a function that takes a dataframe as its first
     argument, and outputs a dataframe. The '>>' operator
-    passes the returned dataframe from the first function
+    passes the dataframe returned from the first function
     to the second function as its first argument.
 
-    :param original: the function on the left-hand side of the '>>' operator.
-    The function must output a dataframe so that it can be passed to the
-    "next" function.
+    first_function() >> second_function()
+
+    :param original: the first function, which must output a dataframe for passing
+    to the second function.
 
     """
     class PipeInto(object):
@@ -166,6 +170,7 @@ def create(df, **kwargs):
     s.names = names_dict
     key_lis = kwargs.keys()
     num_mutations = len(key_lis)
+    # Define counter variables.
     completed = 0
     check_next = 0
     num_checked = 0

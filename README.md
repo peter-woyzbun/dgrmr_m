@@ -1,7 +1,7 @@
 # dgrmr (Data Grammar)
 
 `dgrmr` is a small package for data manipulation in Python, using `pandas`, inspired by (an imitation of) Hadley Wickham's 
-R package `dplyr`. The goal is to make for more structured, readable, and intuitive data manipulation code. Internally, it is 
+R package `dplyr`. The goal is to make for more structured, expressive data manipulation code in Python. Internally, it is 
  essentially a collection of functions layered over `pandas`, and a new "pipe" operator.
 
 The "pipe" operator, `>>`, turns `x >> f(y)`into `f(x,y)`. It allows for the chaining together of any number of `dgrmr` 
@@ -183,7 +183,7 @@ df = df >> select('origin', 'dest', 'arr_delay')
 
 String arguments that require parsing - those used in the `keep()` function, for example - are handled by the 
 `simpleeval` package. The `simpleeval` package allows for the evaluation of expressions, contained in strings,
-using defined functions and variables ("names). For example, 
+using predefined functions and variables ("names). For example, 
 
 ```python
 simple_eval('one = 1', names={'one': df['one'})
