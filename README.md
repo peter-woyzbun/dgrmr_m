@@ -124,10 +124,7 @@ df = df >> rename(origin='origin_new')
 
 ### `group_by()`
 
-The `group_by()` function is used for creating new dataframe columns. The
-name of the column is defined by the keyword argument. Each new column is
-defined in a string and may use dataframe column names, logical operators,
-math functions, and any column defined in the arguments given.
+The `group_by()` function is used to group the dataframe by given column names.
 
 ```python
 df = df >> select('origin', 'dest', 'arr_delay')
@@ -136,10 +133,7 @@ df = df >> select('origin', 'dest', 'arr_delay')
 
 ### `summarise()`
 
-The `select()` function is used for creating new dataframe columns. The
-name of the column is defined by the keyword argument. Each new column is
-defined in a string and may use dataframe column names, logical operators,
-math functions, and any column defined in the arguments given.
+The `summarise()` function is used to summarize a grouped dataframe.
 
 ```python
 df = df >> select('origin', 'dest', 'arr_delay')
@@ -168,22 +162,11 @@ math functions, and any column defined in the arguments given.
 df = df >> select('origin', 'dest', 'arr_delay')
 ```
 
-### `apply_function()`
-
-`apply_function()` function is used for creating new dataframe columns. The
-name of the column is defined by the keyword argument. Each new column is
-defined in a string and may use dataframe column names, logical operators,
-math functions, and any column defined in the arguments given.
-
-```python
-df = df >> select('origin', 'dest', 'arr_delay')
-```
-
 ## How it Works
 
 String arguments that require parsing - those used in the `keep()` function, for example - are handled by the 
 `simpleeval` package. The `simpleeval` package allows for the evaluation of expressions, contained in strings,
-using predefined functions and variables ("names). For example, 
+using predefined functions and variables ("names"). For example,
 
 ```python
 simple_eval('one = 1', names={'one': df['one'})

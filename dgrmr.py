@@ -212,7 +212,7 @@ def select(df, *args):
     :param args: each argument is a string containing a single column name.
     :return: dataframe.
     """
-    df = df[args]
+    df = df[list(args)]
     return df
 
 
