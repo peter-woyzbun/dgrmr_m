@@ -127,7 +127,7 @@ df = df >> rename(origin='origin_new')
 The `group_by()` function is used to group the dataframe by given column names.
 
 ```python
-df = df >> select('origin', 'dest', 'arr_delay')
+df = df >> group_by('carrier')
 ```
 
 
@@ -136,30 +136,25 @@ df = df >> select('origin', 'dest', 'arr_delay')
 The `summarise()` function is used to summarize a grouped dataframe.
 
 ```python
-df = df >> select('origin', 'dest', 'arr_delay')
+df = df >> summarise(mean_t_delay=('mean', 't_delay'))
 ```
 
 
 ### `order_by()`
 
-The `select()` function is used for creating new dataframe columns. The
-name of the column is defined by the keyword argument. Each new column is
-defined in a string and may use dataframe column names, logical operators,
-math functions, and any column defined in the arguments given.
+The `order_by()` function sorts the dataframe by the given columns.
 
 ```python
-df = df >> select('origin', 'dest', 'arr_delay')
+df = df >> order_by('mean_t_delay')
 ```
 
 ### `merge_with()`
 
-The `merge_with()` function is used for creating new dataframe columns. The
-name of the column is defined by the keyword argument. Each new column is
-defined in a string and may use dataframe column names, logical operators,
-math functions, and any column defined in the arguments given.
+The `merge_with()` function merges the piped dataframe with the dataframe
+given in the argument.
 
 ```python
-df = df >> select('origin', 'dest', 'arr_delay')
+df = df >> merge_with(df_n, on='carrier', using='outer_join')
 ```
 
 ## How it Works

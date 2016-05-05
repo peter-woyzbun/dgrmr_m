@@ -1,6 +1,6 @@
 
 import pandas as pd
-from simpleeval import simple_eval, SimpleEval
+from simpleeval import SimpleEval
 import numpy as np
 import ast
 import operator
